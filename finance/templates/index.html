@@ -1,0 +1,38 @@
+
+{% extends "layout.html" %}
+
+{% block title %}
+    Index
+{% endblock %}
+
+{% block main %}
+<table>
+  <tr>
+  {% for col in columns %}
+  <th>{{ col }}</th>
+  {% endfor %}
+  </tr>
+
+  {% for col in shares %}
+      <tr>
+      <td id="CASH"> {{ col['symbol'] }}</td>
+      {% for key in col.values() %}
+      <td>{{ key }}</td>
+      {% endfor %}
+      </tr>
+  {% endfor %}
+  <tr>
+    <td colspan="4" id="CASH">CASH</td>
+    <td>{{ cash }}</td>
+  </tr>
+  <tfoot>
+    <tr>
+      <td colspan="4"></td>
+        <td><b>{{ total }}</b></td>
+    </tr>
+  </tfoot>
+
+
+
+</table>
+{% endblock %}
