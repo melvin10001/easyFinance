@@ -1,6 +1,6 @@
-from cs50 import SQL
 from flask import Flask, flash, redirect, render_template, request, session
 from flask_session import Session
+from flask_sqlalchemy import SQLAlchemy
 from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -25,14 +25,23 @@ def after_request(response):
 app.jinja_env.filters["usd"] = usd
 
 # Configure session to use filesystem (instead of signed cookies)
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 app.config["SESSION_FILE_DIR"] = mkdtemp()
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 # Configure CS50 Library to use SQLite database
-db = SQL("sqlite:///finance.db")
+#db = SQL("sqlite:///finance.db")
+db = SQLAlchemy(app)
 
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(80), unique=True, nullable=False)
+
+    def __init__(self, name):
+        self.name = name
 
 @app.route("/")
 @login_required
@@ -114,10 +123,12 @@ def login():
             return apology("must provide password", 403)
 
         # Query database for username
-        rows = db.execute("SELECT * FROM users WHERE username = :username",
-                          username=request.form.get("username"))
+        #rows = db.execute("SELECT * FROM users WHERE username = :username",
+        #                  username=request.form.get("username"))
 
         # Ensure username exists and password is correct
+
+
         if len(rows) != 1 or not check_password_hash(rows[0]["hash"], request.form.get("password")):
             return apology("invalid username and/or password", 403)
 
@@ -183,9 +194,13 @@ def register():
         else:
             hashed_password = generate_password_hash(
                 password, method='pbkdf2:sha256', salt_length=8)
-            insert_new_user = db.execute(
-                "INSERT INTO users (username,hash) VALUES(:username, :hash)",
-                username=username, hash=hashed_password)
+            #insert_new_user = db.execute(
+            #    "INSERT INTO users (username,hash) VALUES(:username, :hash)",
+#                username=username, hash=hashed_password)
+            new_user = User(user)
+            db.session.add(new_user)
+            db.session.commit()
+
             if not insert_new_user:
                 return apology("following user exists", 400)
             # Login user and redirect
@@ -216,8 +231,8 @@ def change_password():
             hashed_password = generate_password_hash(
                 password, method='pbkdf2:sha256', salt_length=8)
             print(hashed_password)
-            insert_new_user = db.execute(
-                "UPDATE users SET hash=:hash WHERE id=:user_id", user_id=user_id,
+           # insert_new_user = db.execute(
+           #     "UPDATE users SET hash=:hash WHERE id=:user_id", user_id=user_id,
                 hash=hashed_password)
         return redirect("/")
 
