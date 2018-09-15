@@ -1,3 +1,4 @@
+import os
 from flask import Flask, flash, redirect, render_template, request, session
 from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
@@ -233,7 +234,7 @@ def change_password():
             print(hashed_password)
            # insert_new_user = db.execute(
            #     "UPDATE users SET hash=:hash WHERE id=:user_id", user_id=user_id,
-                hash=hashed_password)
+                #hash=hashed_password)
         return redirect("/")
 
     return render_template("change_password.html")
