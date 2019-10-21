@@ -13,6 +13,6 @@ python-dateutil==1.5
 requests==2.19.1
 SQLAlchemy==1.2.11
 urllib3==1.23
-Werkzeug==0.14.1
+Werkzeug==0.15.3
 flask_session==0.3.1
 psycopg2==2.7.5
